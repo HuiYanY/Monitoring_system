@@ -1,0 +1,4 @@
+build/
+Src/bin/
+tests/ImageFormateChangeTest/bin/
+tests/ShardQueueTest/bin/

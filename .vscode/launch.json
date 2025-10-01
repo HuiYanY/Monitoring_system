@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Monitoring_system",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\bin\\Debug\\Monitoring_system.exe", // program path
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",  // 工作目录设置为当前工作区
+            "environment": [],
+            "console": "internalConsole",  // 使用 VS Code 内部控制台查看输出
+            "preLaunchTask": "build",  // 在调试之前执行的任务（通常是构建任务）
+            "logging": {
+                "moduleLoad": false  // 不记录模块加载日志
+            }
+        }
+    ]
+}

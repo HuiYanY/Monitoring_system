@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="login">
+    <file>ico/close.png</file>
+    <file>ico/login.png</file>
+    <file>ico/Login-PasswordIsNotVisible.png</file>
+    <file>ico/Login-PasswordIsVisible.png</file>
+    <file>image/a07.png</file>
+  </qresource>
+</RCC>

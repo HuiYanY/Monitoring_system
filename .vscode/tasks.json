@@ -1,0 +1,31 @@
+ 
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			
+			"type": "shell",
+			"label": "cmake",
+			"command": "cmake -S . -B build"
+		},
+		{
+			
+			"type": "shell",
+			"label": "make",
+			"command": "C:\\Cmake\\cmake-3.30.0\\bin\\cmake.EXE --build c:/Users/HuiYan/Documents/VSCode/Monitoring_system_3/build --config Debug --target ALL_BUILD -j 6 --"
+		},
+		{
+			
+			"label": "build",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"cmake",
+				"make"
+			],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+		}
+	]
+}
