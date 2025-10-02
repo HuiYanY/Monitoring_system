@@ -367,7 +367,8 @@ void MainWindow::readConfigFile()
 void MainWindow::writeConfigFile()
 {
     QSettings settings("./ini/APPSetting.ini", QSettings::IniFormat);
-    settings.setIniCodec("utf-8"); // 防止中文分组或键名乱码
+    // Qt5 启用
+    // settings.setIniCodec("utf-8"); // 防止中文分组或键名乱码
 
     settings.setValue("AI/isOnPlayAI", ui->checkBox->isChecked()); // 自动创建"NewGroup"
     settings.setValue("AI/isOnPlayBackAI", ui->checkBox_2->isChecked()); // 自动创建"NewGroup"

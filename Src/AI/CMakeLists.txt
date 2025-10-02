@@ -7,7 +7,7 @@ add_library(${PROJECT_NAME} AI.cpp inference.cpp inference_GPU.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_lIST_DIR})
 
 # 链接库
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Gui)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Gui)
 
 #判断
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")

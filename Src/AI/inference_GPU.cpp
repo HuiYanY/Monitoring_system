@@ -111,6 +111,9 @@ char* YOLO_V11_GPU::PreProcess(cv::Mat& iImg, std::vector<int> iImgSize, cv::Mat
 char* YOLO_V11_GPU::CreateSession(DL_INIT_PARAM& iParams) {
     // 初始化返回值为RET_OK，表示成功
     char* Ret = RET_OK;
+    // 错误代码
+    static char error[2][100] = {{"[YOLO_V11_GPU]:Your model path is error.Change your model path without chinese characters."},
+                                {"[YOLO_V11_GPU]:Create session failed."}};
     // 定义一个正则表达式模式，用于匹配中文字符
     std::regex pattern("[\u4e00-\u9fa5]");
     // 使用std::lock_guard来保证线程安全
@@ -120,7 +123,7 @@ char* YOLO_V11_GPU::CreateSession(DL_INIT_PARAM& iParams) {
     if (result)
     {
         // 如果包含中文字符，设置错误信息并返回
-        Ret = "[YOLO_V11_GPU]:Your model path is error.Change your model path without chinese characters.";
+        Ret = error[0];
         std::cout << Ret << std::endl;
         return Ret;
     }
@@ -196,7 +199,7 @@ char* YOLO_V11_GPU::CreateSession(DL_INIT_PARAM& iParams) {
         std::strcpy(merged, result.c_str());
         std::cout << merged << std::endl;
         delete[] merged;
-        return "[YOLO_V11_GPU]:Create session failed.";
+        return error[1];
     }
 
 }

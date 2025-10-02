@@ -1,13 +1,6 @@
 project(Src)
 
-# Qt5配置
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/bin)
-set(Qt5_DIR C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/lib/cmake/Qt5)
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATH_EXE})
 
 # 设置lib路径
 set(lib_path ${CMAKE_CURRENT_LIST_DIR}/Lib)
@@ -54,10 +47,10 @@ add_subdirectory(PublicModule)
 
 message("Build Type: ${CMAKE_BUILD_TYPE}")
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    add_executable(${PROJECT_NAME} main.cpp resource.rc ${ProjectResource})
-    target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets MainWindow opencv_world4110d)
+    add_executable(${APP_NAME} main.cpp resource.rc ${ProjectResource})
+    target_link_libraries(${APP_NAME} PRIVATE Qt6::Widgets MainWindow opencv_world4110d)
 elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    add_executable(${PROJECT_NAME} WIN32 main.cpp resource.rc ${ProjectResource})
-    target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets MainWindow opencv_world4110)
+    add_executable(${APP_NAME} WIN32 main.cpp resource.rc ${ProjectResource})
+    target_link_libraries(${APP_NAME} PRIVATE Qt6::Widgets MainWindow opencv_world4110)
 endif()
 

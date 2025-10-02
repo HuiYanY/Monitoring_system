@@ -62,7 +62,8 @@ void Login::loging()
 bool Login::accountIsExists(QString userName)
 {
     QSettings settings("./ini/user.ini", QSettings::IniFormat);
-    settings.setIniCodec("utf-8"); // 防止中文分组或键名乱码
+    // Qt5 需要启用
+    // settings.setIniCodec("utf-8"); // 防止中文分组或键名乱码
 
     QStringList groups = settings.childGroups();
     for (int i = 0; i < groups.size(); i++)
@@ -154,7 +155,8 @@ void Login::mouseReleaseEvent(QMouseEvent *event){
 void Login::writeInIni()
 {
     QSettings settings("./ini/user.ini", QSettings::IniFormat);
-    settings.setIniCodec("utf-8"); // 防止中文分组或键名乱码
+    // Qt5 需要启用
+    // settings.setIniCodec("utf-8"); // 防止中文分组或键名乱码
 
     QStringList groups = settings.childGroups();
     if (!groups.isEmpty()) 

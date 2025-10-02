@@ -1,6 +1,6 @@
 project(ShardQueueTest)
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/bin)
+set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATH_TESTS}/ShardQueueTest)
 
 add_executable(${PROJECT_NAME} test.cpp)
 

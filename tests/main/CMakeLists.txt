@@ -2,7 +2,7 @@ project(catch)
 
 set(CMAKE_CXX_STANDARD 17)
 
-SET(LIBRARY_OUTPUT_PATH ${catch})
+SET(LIBRARY_OUTPUT_PATH ${catch_path})
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 

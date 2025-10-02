@@ -11,7 +11,7 @@
 #include "onnxruntime_cxx_api.h"
 
 
-#define USE_CUDA
+// #define USE_CUDA
 
 #ifdef USE_CUDA
 #include <cuda_fp16.h>

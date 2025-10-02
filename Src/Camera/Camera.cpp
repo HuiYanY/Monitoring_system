@@ -479,7 +479,8 @@ void Camera::readConfig()
 void Camera::writeConfig(QString cameraName, QString url)
 {
     QSettings settings("./ini/cameraInfo.ini", QSettings::IniFormat);
-    settings.setIniCodec("utf-8"); // 防止中文分组或键名乱码
+    // Qt5 启用
+    // settings.setIniCodec("utf-8"); // 防止中文分组或键名乱码
 
     QStringList groups = settings.childGroups();
     if (groups.isEmpty()) {

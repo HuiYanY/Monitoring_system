@@ -7,7 +7,7 @@ add_library(${PROJECT_NAME} MainWindow.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR} Camera AI Login)
 
 # 链接Qt库
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Widgets Qt5::Gui)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets Qt6::Gui)
 
 # 链接自定义库
 target_link_libraries(${PROJECT_NAME} PRIVATE Camera AI Login)

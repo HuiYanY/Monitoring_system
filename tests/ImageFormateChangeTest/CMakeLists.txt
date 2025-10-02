@@ -1,14 +1,6 @@
 project(ImageFormateChangeTest)
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_LIST_DIR}/bin)
-
-# Qt5配置
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
-set(Qt5_DIR C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/lib/cmake/Qt5)
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATH_TESTS}/ImageFormateChangeTest)
 
 set(lib_path "C:/Users/HuiYan/Documents/VSCode/Monitoring_system/Src/Lib")
 
@@ -25,7 +17,7 @@ link_directories(${lib_path}/LibFFmpeg/lib)
 
 add_executable(${PROJECT_NAME} test.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE PublicModule Qt5::Core Qt5::Gui catch)
+target_link_libraries(${PROJECT_NAME} PRIVATE PublicModule Qt6::Core Qt6::Gui catch)
 #判断
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
  # Debug 配置
