@@ -11,6 +11,20 @@ if(MSVC)
     )
 endif()
 
+# 设置根目录
+set(root_path ${CMAKE_CURRENT_LIST_DIR})
+
+set(Vulkan_SDK "C:/VulkanSDK/1.4.321.1")
+set(Vulkan_INCLUDE_DIR "C:/VulkanSDK/1.4.321.1/Include")
+set(Vulkan_LIBRARY "C:/VulkanSDK/1.4.321.1/Lib")
+find_package(Vulkan REQUIRED)
+
+if(Vulkan_glslc_FOUND AND Vulkan_glslangValidator_FOUND)
+    message(STATUS "Found glslc and glslangValidator")
+else()
+    message(FATAL_ERROR "Missing required Vulkan components: glslc and glslangValidator")
+endif()
+
 set(CMAKE_BUILD_TYPE "Debug") # Debug Release
 
 # bin 文件路径
@@ -19,10 +33,10 @@ if(MSVC)
 else()
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         set(OUTPUT_PATH_EXE ${CMAKE_CURRENT_LIST_DIR}/bin/Release)
-        message(STATUS "Release build selected")
+        message(STATUS "-- Release build selected")
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         set(OUTPUT_PATH_EXE ${CMAKE_CURRENT_LIST_DIR}/bin/Debug)
-        message(STATUS "Debug build selected")
+        message(STATUS "-- Debug build selected")
     else()
         message(WARNING "Unknown build type: ${CMAKE_BUILD_TYPE}")
     endif()

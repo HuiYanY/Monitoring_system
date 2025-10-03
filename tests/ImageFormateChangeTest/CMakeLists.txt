@@ -2,7 +2,7 @@ project(ImageFormateChangeTest)
 
 set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATH_TESTS}/ImageFormateChangeTest)
 
-set(lib_path "C:/Users/HuiYan/Documents/VSCode/Monitoring_system/Src/Lib")
+set(lib_path "${root_path}/Src/Lib")
 
 # OpenCV配置
 set(OpenCV_LIB_DIR "${lib_path}/opencv")
