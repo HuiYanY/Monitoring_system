@@ -1,4 +1,4 @@
 build/
 bin/
 Src/Lib/mylib/
-
+.vscode/
