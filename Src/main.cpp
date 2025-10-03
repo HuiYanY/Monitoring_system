@@ -21,6 +21,8 @@ int main(int argc, char *argv[])
 	qDebug() << "MeidaPlayer ffmpeg/avutil version " << versionStr;
     qDebug() << "HuiYan";
 
+    avformat_network_init();
+
     //start code
     QApplication app(argc, argv);
     

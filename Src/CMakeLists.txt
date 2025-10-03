@@ -45,7 +45,7 @@ add_subdirectory(Login)
 add_subdirectory(MainWindow)
 add_subdirectory(PublicModule)
 
-message("Build Type: ${CMAKE_BUILD_TYPE}")
+message("-- Build Type: ${CMAKE_BUILD_TYPE}")
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_executable(${APP_NAME} main.cpp resource.rc ${ProjectResource})
     target_link_libraries(${APP_NAME} PRIVATE Qt6::Widgets MainWindow opencv_world4110d)

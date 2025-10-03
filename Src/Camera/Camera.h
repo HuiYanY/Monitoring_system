@@ -9,7 +9,6 @@
 #include <QFile>
 #include <QSettings>
 #include <QTimer>
-#include <QSlider>
 
 #include "ShareQueue.h"
 #include "ImageFormateChange.h"
@@ -48,16 +47,6 @@ private:
     QString url; // 视频流URL
     int videoStreamIndex {-1}; // 视频流索引
 
-
-    //Save使用的变量
-    QString outFileName; // 输出文件名
-    AVStream *out_video_stream {nullptr}; // 输出视频流
-    AVFormatContext *ofmtContext {nullptr}; // 输出格式上下文
-    bool isSave {true}; // 是否保存视频
-    AVPacket* temp_clone {nullptr}; // 临时保存数据包
-    AVRational input_time_base; // 输入视频流的时基
-    QTimer *saveTimer {nullptr}; // 定时器，用于控制保存视频的时长
-
     // AI识别
     // 创建Ai对象
     AI* ai {nullptr};
@@ -72,7 +61,7 @@ private:
     bool runOnGPU {false};
     std::vector<DL_RESULT> res; // 存储识别结果
 
-    std::atomic<bool> isStop{false}; // 原子操作替代bool
+    std::atomic<bool> isStop {false}; // 原子操作替代bool
     bool isShow {false};
     bool isEncode {false};
 
@@ -83,12 +72,6 @@ private:
     int FPS {0};
     int FPS_Show {0};
     bool isShowFPS {false}; // 是否显示FPS
-
-    // 进度条
-    // QSlider *progressBar {nullptr};
-    // QTimer *timerProgressBar {nullptr};
-    // QLabel *progressLabel {nullptr};
-    // int64_t duration {0};
 
 public:
     SharedQueue<QImage> frameQueue; // 共享队列
@@ -103,7 +86,6 @@ public:
     ~Camera();
 
     bool Init_Camera();
-    bool Init_Save();
     void run() override;
 
     void readCamera();
@@ -111,11 +93,9 @@ public:
 
     // getters
     void SetURL(QString str){this->url = str;}
-    void SetOutFileName(QString name){this->outFileName = name;}
     void SetStop(bool stop){mutex.lock();this->isStop = stop;mutex.unlock();}
     void SetIsOnAI(bool onAI){this->isOnAI = onAI;}
     void SetAi(const QString &path,bool runOnGPU);
-    void SetIsSave(bool isSave){this->isSave = isSave;}
 
     // setters
     QString getCameraName() const {return this->cameraName;}
@@ -136,7 +116,6 @@ public slots:
     void updateFrameRate();
     void showStop(int page); // 显示停止
     void showStopOne(int CameraID); // 显示停止
-    void changeSaveFileName(); // 修改保存文件名
 };
 
 #endif

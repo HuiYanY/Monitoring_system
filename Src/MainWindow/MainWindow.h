@@ -11,6 +11,8 @@
 #include "model.h"
 #include "Login.h"
 
+#include "CameraSave.hpp"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 namespace Ui { class AddCamera; }
@@ -27,6 +29,7 @@ private:
     Ui::MainWindow *ui {nullptr};
     
     QVector<Camera*> _camera;
+    QVector<CameraSave*> save_camera_video;
     Camera* _cameraBack {nullptr};
 
     Login *loginWin {nullptr};
@@ -49,7 +52,7 @@ private:
     bool isOnGPU {false}; // 是否启用GPU
 
     QTimer *timer {nullptr};
-    int currentPage {true}; // 当前页面是否为主页面
+    int currentPage {1}; // 当前页面是否为主页面
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();

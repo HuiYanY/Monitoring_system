@@ -80,6 +80,15 @@ MainWindow::~MainWindow()
         /* code */
         this->_cameraBack->wait();
     }
+
+    // 录制线程
+    for (int i = 0; i < this->cameraNumber; i++)
+    {
+        if (this->save_camera_video[i]) {
+            this->save_camera_video[i]->stopWork();
+            _camera[i]->wait();
+        }
+    }
     
 
     // 删除所有对象
@@ -567,7 +576,6 @@ void MainWindow::Play()
     // 解码视频流数据
     for (int i = 0; i < cameraNumber; i++)
     {
-        /* code begin*/
         _camera.push_back(new Camera(i,this));
         _camera.last()->readCamera();
 
@@ -580,13 +588,16 @@ void MainWindow::Play()
         
         if (_camera[i] != nullptr)
         {
+            // 显示实时视频流
             connect(this, static_cast<void (MainWindow::*)()>(&MainWindow::stopCameraThread), _camera[i],static_cast<void (Camera::*)()>(&Camera::onStopCameraThread));
             connect(this, &MainWindow::setShowScreenIndex, _camera[i],&Camera::setShowScreenIndex);
             connect(this, &MainWindow::stopShowOneCamera, _camera[i],&Camera::showStopOne);
             connect(this, &MainWindow::stopShow, _camera[i],&Camera::showStop);
             _camera.last()->start();
+            // 存储视频流
+            this->save_camera_video.push_back(new CameraSave(_camera.last()->getURL(),("./Save/"+_camera.last()->getCameraName())));
+            this->save_camera_video.last()->start();
         }
-        /* code end*/
     }
 }
 
@@ -631,7 +642,6 @@ void MainWindow::PlayBack()
     // 创建回放摄像头
     this->_cameraBack = new Camera(-1,file,"backPlay",this);
     // 回放视频
-    this->_cameraBack->SetIsSave(false); // 设置不保存视频
     this->_cameraBack->SetIsOnAI(this->isOnPlayBackAI); // 设置AI是否开启
     this->_cameraBack->SetAi("yolo11n.onnx",this->isOnGPU); // 设置AI模型
     connect(this, static_cast<void (MainWindow::*)(const int)>(&MainWindow::stopCameraThread), this->_cameraBack,static_cast<void (Camera::*)(const int)>(&Camera::onStopCameraThread)); // 连接信号和槽, 停止回放摄像头

@@ -13,29 +13,16 @@ static AVPixelFormat get_hw_format(AVCodecContext *ctx, const AVPixelFormat *for
 
 Camera::Camera(QObject *parent)
 {
-    this->saveTimer = new QTimer(this);
-    this->saveTimer->setInterval(60000); // 每分钟触发一次
-    connect(this->saveTimer, &QTimer::timeout, this, &Camera::changeSaveFileName,Qt::QueuedConnection);
-    this->saveTimer->start(); // 启动定时器
-    
 }
 
 Camera::Camera(const QString url_, QObject *parent)
     : url(url_), QThread(parent)
 {  
-    this->saveTimer = new QTimer(this);
-    this->saveTimer->setInterval(60000); // 每分钟触发一次
-    connect(this->saveTimer, &QTimer::timeout, this, &Camera::changeSaveFileName,Qt::QueuedConnection);
-    this->saveTimer->start(); // 启动定时器
 }
 
 Camera::Camera(const int id, QObject *parent)
     : cameraID(id), QThread(parent)
 {
-    this->saveTimer = new QTimer(this);
-    this->saveTimer->setInterval(60000); // 每分钟触发一次
-    connect(this->saveTimer, &QTimer::timeout, this, &Camera::changeSaveFileName,Qt::QueuedConnection);
-    this->saveTimer->start(); // 启动定时器
 }
 
 Camera::Camera(const int id, const QString url_, const QString cameraName_, QObject *parent)
@@ -57,17 +44,13 @@ Camera::~Camera()
 
 bool Camera::Init_Camera()
 {
-    qDebug() << "In Camera Init!\n";
-
     this->videoStreamIndex = -1;
-    avformat_network_init();
     this->_avframe = av_frame_alloc();
     this->_aVPacket = av_packet_alloc();
-    this->isStop = false;
 
     // 设置超时选项
     AVDictionary *options = NULL;
-    av_dict_set(&options, "timeout", "10000000", 0); // 设置超时时间为 10 秒
+    av_dict_set(&options, "timeout", "5000", 0); // 设置超时时间为 5 秒
     qDebug() << this->url;
     //打开视频流
     if(avformat_open_input(&(this->_avformatContext),this->url.toStdString().c_str(),NULL,&options) < 0){
@@ -148,44 +131,6 @@ bool Camera::Init_Camera()
     return true;
 }
 
-bool Camera::Init_Save()
-{
-    int ret = -1;
-    input_time_base = _avformatContext->streams[videoStreamIndex]->time_base; // 输入视频流的时基
-
-    // 获取当前时间
-    QDateTime currentDateTime = QDateTime::currentDateTime();
-    // 格式化时间
-    QString formattedTime = currentDateTime.toString("yyyy-MM-dd_hh-mm");
-
-    // 封装为文件
-    if (avformat_alloc_output_context2(&(this->ofmtContext), NULL, NULL, ("Save\\"+this->outFileName+formattedTime+".h265").toStdString().c_str()) < 0) {
-        qDebug() << "Failed to allocate output context\n";
-        return false;
-    }
-    // 创建视频流并复制参数
-    out_video_stream = avformat_new_stream(this->ofmtContext, NULL);
-    avcodec_parameters_from_context(out_video_stream->codecpar, this->_avCodeContext);
-    // 设置时间基和帧率
-    out_video_stream->time_base = input_time_base;
-    out_video_stream->avg_frame_rate = av_make_q(25, 1);
-
-    if(avio_open(&(this->ofmtContext->pb), ("Save\\"+this->outFileName+formattedTime+".h265").toStdString().c_str(), AVIO_FLAG_READ_WRITE)){
-        qDebug() << "Failed to open output file\n";
-        return false;
-    }
-
-    //写入头
-    ret = avformat_write_header(this->ofmtContext, NULL);
-    if (ret < 0) {
-        qDebug() << "Error writing header!";
-        return false;
-    }
-
-    qDebug() << "Init save the stream successfully!";
-    return true;
-}
-
 void Camera::run()
 {
     if(!Init_Camera()){
@@ -193,144 +138,62 @@ void Camera::run()
         return;        
     } // 初始化失败
     int ret = -1;
-    if (this->isSave){
-        if (!Init_Save()){
-            qDebug() << "Init Save failed!";
-            return;
-        } // 初始化失败
-    }
-    bool isSleep = true;
-    // 是否是视像头
-    if("rtsp" == this->url.left(4)) {
-        isSleep = false;
-        this->frameQueue.setMaxSize(600);
-    }
-    qDebug() << "Camera:  " << this->url << "isSleep:" << isSleep;
-    // if (-1 == this->cameraID)
-    // {
-    //     /* code */
-    //     this->progressBar->setValue(0);
-    //     this->duration = this->_avformatContext->duration / (double)AV_TIME_BASE * 1000; // 转换为毫秒
-    //     this->progressBar->setRange(0, this->duration); // 设置进度条的范围
-    // }
+    // 设置队列最大存储数据量  帧
+    this->frameQueue.setMaxSize(25);
+    
     // 解封装
     // 解码
     // 颜色空间转换
     // 生成image
-
-    int frame_count = 0; // 计数器
-    AVRational time_base = input_time_base; // 时间基
     
     while (((ret = av_read_frame(this->_avformatContext,this->_aVPacket)) >= 0))
     {
         if(this->isStop) break;
         if (this->_aVPacket->stream_index == this->videoStreamIndex){
-            if (this->isSave)
+            //将包发给解码器
+            if ((ret = avcodec_send_packet(this->_avCodeContext,this->_aVPacket)) < 0)
             {
-                /* code */
-                temp_clone = av_packet_clone(_aVPacket);
-
-                // 自动生成时间戳
-                temp_clone->pts = frame_count++;
-                temp_clone->dts = temp_clone->pts;
-        
-                // 时间基转换（需同步输入流与封装流）
-                av_packet_rescale_ts(temp_clone, input_time_base, out_video_stream->time_base);
-
-                // 写入H265文件
-                av_interleaved_write_frame(ofmtContext, temp_clone);
-
-                av_packet_unref(temp_clone);
+                qDebug() << "Packet——>Codec failed!";
+                av_packet_unref(_aVPacket);  // 错误时也需要释放
+                continue;
             }
 
-            if (this->isEncode)
+            while (ret >= 0)
             {
-                //将包发给解码器
-                if ((ret = avcodec_send_packet(this->_avCodeContext,this->_aVPacket)) < 0)
+                ret = avcodec_receive_frame(this->_avCodeContext,this->hw_frame);
+                if (ret == AVERROR_EOF)
                 {
-                    qDebug() << "Packet——>Codec failed!";
-                    if (temp_clone){ 
-                        av_packet_unref(temp_clone);
-                    }
-                    av_packet_unref(_aVPacket);  // 错误时也需要释放
+                    this->isEncode = false;
+                    break;
+                }
+                
+                if (ret == AVERROR(EAGAIN))
+                {
+                    break;
+                }
+                
+                if (av_hwframe_transfer_data(this->_avframe, this->hw_frame, 0) < 0) {
+                    av_frame_unref(this->_avframe);
+                    av_frame_unref(this->hw_frame);
                     continue;
                 }
 
-                while (ret >= 0)
+                //发送image进行显示
+                if (this->isShow)
+                if (this->isOnAI)
                 {
-                    //qDebug() << "开始解码！" << QDateTime::currentDateTime().toString("HH:mm:ss") << "ret:" << ret;
-                    ret = avcodec_receive_frame(this->_avCodeContext,this->hw_frame);
-                    if (ret == AVERROR_EOF)
-                    {
-                        //qDebug() << "End of stream！";
-                        this->isEncode = false;
-                        break;
-                    }
-                    
-                    if (ret == AVERROR(EAGAIN))
-                    {
-                        //qDebug() << "More input data is required to produce the output！";
-                        break;
-                    }
-                    
-                    if (av_hwframe_transfer_data(this->_avframe, this->hw_frame, 0) < 0) {
-                        av_frame_unref(this->_avframe);
-                        av_frame_unref(this->hw_frame);
-                        //qDebug() << "传输帧到系统内存失败";
-                        continue;
-                    }
-
-                    //发送image进行显示
-                    if (this->isShow)
-                    if (this->isOnAI)
-                    {
-                        // 进行图像识
-                        PredictedQueue.push_skip(avframeToCvMat(this->_avframe)); // 将识别结果添加到队列中
-                    }
-                    else{
-                        // 发送image进行显示
-                        frameQueue.push_skip(avframeToQImage(this->_avframe)); // 将结果添加到队列中
-                    }
+                    // 进行图像识
+                    PredictedQueue.push_skip(avframeToCvMat(this->_avframe)); // 将识别结果添加到队列中
                 }
-            }
-            else{
-                QThread::msleep(16);
-            }
+                else{
+                    // 发送image进行显示
+                    frameQueue.push_skip(avframeToQImage(this->_avframe)); // 将结果添加到队列中
+                }
+            } 
         }
-
-        //帧率
-        if(isSleep) 
-        {
-            if (this->isOnAI)
-            {
-                QThread::msleep(16);
-            }
-            else
-            {
-                QThread::msleep(40);
-            }
-        }
-
         av_packet_unref((this->_aVPacket)); // 释放资源
-        if (temp_clone != nullptr)
-        {
-            av_packet_unref(temp_clone); // 释放资源
-        }
     }
     this->isEncode = false;
-
-    av_packet_free(&temp_clone);
-
-    if (ofmtContext) {
-        // 设置时长
-        ofmtContext->duration = frame_count * (int64_t)(av_q2d(time_base) / av_q2d(out_video_stream->time_base));
-        // 写入文件尾
-        av_write_trailer(ofmtContext);
-        // 关闭输出文件
-        avio_closep(&ofmtContext->pb);
-        // 释放输出格式的上下文
-        avformat_free_context(ofmtContext);
-    }
 
 }
 
@@ -473,7 +336,6 @@ void Camera::readConfig()
     QString id = QString("%1").arg(this->cameraID, 3, 10,QChar('0'));
     this->cameraName = settings.value(id+"/cameraName").toString();
     this->url = settings.value(id+"/url").toString();
-    this->outFileName = settings.value(id+"/outputFile").toString();
 }
 
 void Camera::writeConfig(QString cameraName, QString url)
@@ -562,20 +424,6 @@ void Camera::showStopOne(int CameraID)
     if (CameraID == this->cameraID)
     {
         this->isShow = false; // 设置当前不显示
-    }
-    
-}
-
-void Camera::changeSaveFileName()
-{
-    if (this->isSave && this->isEncode)
-    {
-        if (ofmtContext) {
-            av_write_trailer(ofmtContext);
-            avio_closep(&ofmtContext->pb);
-            avformat_free_context(ofmtContext);
-        }
-        this->Init_Save();
     }
     
 }

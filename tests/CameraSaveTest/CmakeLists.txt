@@ -1,0 +1,28 @@
+project(CameraSaveTest)
+
+set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATH_TESTS}/CameraSaveTest)
+
+set(lib_path "${root_path}/Src/Lib")
+
+# OpenCV配置
+set(OpenCV_LIB_DIR "${lib_path}/opencv")
+# 查找OpenCV库文件
+link_directories(${OpenCV_LIB_DIR}/lib)
+# 设置opencv的lib的头文件位置
+include_directories(${OpenCV_LIB_DIR}/include)
+
+# FFmpeg配置
+include_directories(${lib_path}/LibFFmpeg/include)
+link_directories(${lib_path}/LibFFmpeg/lib)
+
+# onnxruntime配置
+include_directories(${lib_path}/LibONNXRuntime/include)
+include_directories(${lib_path}/LibONNXRuntime/include/core/providers)
+include_directories(${lib_path}/LibONNXRuntime/include/core/providers/cuda)
+link_directories(${lib_path}/LibONNXRuntime/lib)
+
+add_executable(${PROJECT_NAME} test.cpp)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Camera catch)
+
+add_test(NAME test3 COMMAND CameraSaveTest)
